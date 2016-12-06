@@ -2,9 +2,6 @@ import inspect
 import copy
 
 
-# TODO: toss this in github....
-
-
 def dependent(func):
     vars, varargs, varkw, defaults, kwonlyargs, kwonlydefaults, annotations = inspect.getfullargspec(func)  # TODO prefered way to get annotations?
 
@@ -148,7 +145,7 @@ class Symbolic:
 
                     assert False, "that didn't work!!!"
 
-                return recurs(ty.out_ty, tail) #TODO: need to make symbolic aplication change the return types!!!
+                return recurs(ty.out_ty, tail)  # TODO: need to make symbolic aplication change the return types!!!
             else:
                 return Symbolic("__", ty)
 
@@ -199,8 +196,6 @@ def beta_eq(this, other, replacement_context):
             return False
     else:
         return False
-
-    return False
 
 
 # not a good name for a general audiance
@@ -260,7 +255,6 @@ _ = VAR("_")
 
 ####################################################################################################
 
-# questions for hongwie
 # is this already a thing?
 # obvous limitations
 # write up plan, can compare and contrast 3 different aproaches to reasoning about python, given CPython. at least shallowly
@@ -404,7 +398,6 @@ def ident2(A: Prop) -> FUNC(_, A, A):
         return a
 
     return inner
-
 
 # This would be a cool feature. Doesn't work right now
 
