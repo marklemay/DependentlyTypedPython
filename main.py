@@ -299,12 +299,56 @@ def ident(A: Prop) -> Prop:
     return A
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 A = VAR("A")
 
 
 @dependent
 def ident(A: Prop, a: A) -> A:
     return a
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # but not
@@ -320,6 +364,28 @@ except:
     pass
 else:
     assert False, "should throw error"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 try:
     A = VAR("A")
@@ -359,6 +425,28 @@ else:
 
 #############################################
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 A = VAR("A")
 B = VAR("B")
 a = VAR("a")
@@ -371,6 +459,28 @@ def impl(A: Prop, B: Prop, a: A, a_to_b: FUNC(a, A, B)) -> B:
 
 assert impl(str, int, "hi", len) == 2, "this might seem crazy... but these are perfectly valid python functions"
 assert impl(_, _, "hi", len) == 2, "for now I'm begrudgingly accepting the python convention of erasing type constraints at runtime"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 A = VAR("A")
 B = VAR("B")
@@ -391,6 +501,28 @@ def cut_elim(A: Prop, B: Prop, C: Prop, a_to_b: FUNC(_, A, B), b_to_c: FUNC(_, B
 # unfortunately there is still a bug about inner functions, that try to create themselves in type check mode, even when called with non symbolic input
 # assert cut_elim(str, int, str, len, lambda n: "is " + str(n) + " chars long")(
 #     "some string") == 2, "this might seem crazy... but these are perfectly valid python functions"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 try:
     A = VAR("A")
@@ -419,6 +551,28 @@ else:
 # @dependent
 # def ident_self() -> FUNC(A, Prop, FUNC(_, A, A)):
 #     return ident(ident.get_type(), ident)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 A = VAR("A")
