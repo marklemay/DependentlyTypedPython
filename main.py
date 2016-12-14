@@ -2,6 +2,8 @@ import inspect
 import copy
 
 
+# break up into seperate files
+
 def dependent(func):
     vars, varargs, varkw, defaults, kwonlyargs, kwonlydefaults, annotations = inspect.getfullargspec(func)  # TODO prefered way to get annotations?
 
@@ -96,11 +98,14 @@ def dependent(func):
         if ty_ret is Prop and isinstance(sym_return, FUNC):
             return True  # TODO: TODO TODO this is a horrifying simplification!  it is horribly unsound!!!!!
         elif type(sym_return) == Symbolic:
+            assert sym_return.ty == ty_ret, "retrurned symbolic type" + str(sym_return.ty) + " != " + str(ty_ret)
             return sym_return.ty == ty_ret
         else:
             # TODO: this doesn't seem right...?
             # print(sym_return.get_type())
             # print(ty_ret)
+
+            assert sym_return.get_type() == ty_ret, "retrurned NOT symbolic type" + str(sym_return.get_type()) + " != " + str(ty_ret)
 
             return sym_return.get_type() == ty_ret
 
@@ -114,7 +119,8 @@ def dependent(func):
 ####
 
 # a type ref
-class Symbolic:
+class Symbolic:  # represents the connonical most general version of a given type
+    # TODO: throw exceptions on equality checks, these are only equal if id are equal
     def __init__(self, name, ty):
         self.name = name
         self.ty = ty
@@ -145,7 +151,8 @@ class Symbolic:
 
                     assert False, "that didn't work!!!"
 
-                return recurs(ty.out_ty, tail)  # TODO: need to make symbolic aplication change the return types!!!
+                # return recurs(ty.out_ty, tail)  # TODO: need to make symbolic aplication change the return types!!!
+                return recurs(type_with_replacement(head, ty.in_name, ty.out_ty), tail)  # TODO: need to make symbolic aplication change the return types!!!
             else:
                 return Symbolic("__", ty)
 
@@ -156,6 +163,31 @@ class Symbolic:
 
     def __repr__(self):
         return str(self)
+
+
+def type_with_replacement(replace_this, with_this, in_this):
+    # assert isinstance(in_this, Symbolic), "no support for symbolic replacement yet"
+    if in_this is Prop:
+        return Prop
+    elif in_this == replace_this:
+        return with_this
+    elif isinstance(in_this, FUNC):
+        new_in_ty = type_with_replacement(replace_this, with_this, in_this.in_ty)
+        new_out_ty = type_with_replacement(replace_this, with_this, in_this.out_ty)
+
+        return FUNC(in_this.in_name, new_in_ty, new_out_ty)
+
+    elif isinstance(in_this, Symbolic):
+        # create a new symbolic object under the typing restrictions
+        old_ty = in_this.ty
+
+        if isinstance(old_ty, FUNC):  # TODO: too messy
+            new_ty = type_with_replacement(replace_this, with_this, old_ty)
+            return Symbolic(in_this.name, new_ty)
+        else:
+            return in_this
+
+    assert False, "didn't check all cases:" + str(in_this) + ":" + str(type(in_this))
 
 
 # dependent func
@@ -179,6 +211,7 @@ class FUNC:
         return beta_eq(self, other, {})  # TODO: for sure this is wron becuase of beta redux
 
 
+# TODO: not beta, gamma?
 def beta_eq(this, other, replacement_context):
     if type(this) != FUNC and type(other) != FUNC:
         if other in replacement_context:
@@ -255,11 +288,9 @@ _ = VAR("_")
 
 ####################################################################################################
 
-# is this already a thing?
-# obvous limitations
-# write up plan, can compare and contrast 3 different aproaches to reasoning about python, given CPython. at least shallowly
 
 # TODO: need some test cases around beta reduction
+# TODO: need some test cases around renaming equivelence
 
 @dependent
 def ident(A: Prop) -> Prop:
@@ -354,8 +385,7 @@ def cut_elim(A: Prop, B: Prop, C: Prop, a_to_b: FUNC(_, A, B), b_to_c: FUNC(_, B
 
     return inner
 
-
-# unfortunately there is still a bug about inner functions, that try to create themselves in type check mode
+# unfortunately there is still a bug about inner functions, that try to create themselves in type check mode, even when called with non symbolic input
 # assert cut_elim(str, int, str, len, lambda n: "is " + str(n) + " chars long")(
 #     "some string") == 2, "this might seem crazy... but these are perfectly valid python functions"
 
@@ -422,27 +452,27 @@ def ident2(A: Prop) -> FUNC(_, A, A):
 
 
 
-# # TODO: now obvously we want and_def as an implicit assumption, defined in a library somewhere
-# # for all A,B.  A and B is a prop which means that any output created by any function that takes in A and B is achivable
-# # note that this funciton chould have been defined in any scope
-# @dependent
-# def and_def(A: Prop, B: Prop) -> Prop:
-#     Output = VAR("Output")
-#     AnyFunc = VAR("AnyFunc")
-#
-#     return FUNC(Output, Prop,
-#                 FUNC(AnyFunc, FUNC(_, A, FUNC(_, B, Output)),
-#                      Output))
-#
-#
-# A = VAR("A")
-# B = VAR("B")
-#
-#
-# # aa = and_def(A, B)
-# # print("hi")
-# # print(type(and_def)==function)
-#
+# TODO: now obvously we want and_def as an implicit assumption, defined in a library somewhere
+# for all A,B.  A and B is a prop which means that any output created by any function that takes in A and B is achivable
+# note that this funciton chould have been defined in any scope
+@dependent
+def and_def(A: Prop, B: Prop) -> Prop:
+    Output = VAR("Output")
+    AnyFunc = VAR("AnyFunc")
+
+    return FUNC(Output, Prop,
+                FUNC(AnyFunc, FUNC(_, A, FUNC(_, B, Output)),
+                     Output))
+
+
+A = VAR("A")
+B = VAR("B")
+
+
+# aa = and_def(A, B)
+# print("hi")
+# print(type(and_def)==function)
+
 # @dependent
 # def and_left_elim(A: Prop, B: Prop,
 #                   AandB: and_def(A, B)) -> A:  # TODO: need to handle the super akward case where, dependent vars are computed on (could lead to unsoundness)
