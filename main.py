@@ -3,10 +3,12 @@ import copy
 
 
 # break up into seperate files
+# TODO: break into calculus of constructions unification
 
 def dependent(func):
     vars, varargs, varkw, defaults, kwonlyargs, kwonlydefaults, annotations = inspect.getfullargspec(func)  # TODO prefered way to get annotations?
 
+    # TODO: modify repr so the function shows its  type when printed
     # first construct the type
     def get_type():
         def rec(context, vars, out):
@@ -145,16 +147,16 @@ class Symbolic:  # represents the connonical most general version of a given typ
                     assert ty.in_ty == head.ty, "incorrect type application " + str(ty.in_ty) + " applied to " + str(head.ty)
                 elif callable(head) and hasattr(head, "get_type"):
                     function_type = head.get_type()
-                    assert ty.in_ty == function_type, "should check"
+                    assert ty.in_ty == function_type, "should check" + str(ty.in_ty) + " != " + str(function_type)
                     print("hi")
                 else:
 
                     assert False, "that didn't work!!!"
 
                 # return recurs(ty.out_ty, tail)  # TODO: need to make symbolic aplication change the return types!!!
-                return recurs(type_with_replacement(head, ty.in_name, ty.out_ty), tail)  # TODO: need to make symbolic aplication change the return types!!!
+                return recurs(type_with_replacement(ty.in_name, head, ty.out_ty), tail)  # TODO: need to make symbolic aplication change the return types!!!
             else:
-                return Symbolic("__", ty)
+                return Symbolic("__", ty)  # TODO: should return self?
 
         return recurs(self.ty, args)
 
@@ -385,6 +387,7 @@ def cut_elim(A: Prop, B: Prop, C: Prop, a_to_b: FUNC(_, A, B), b_to_c: FUNC(_, B
 
     return inner
 
+
 # unfortunately there is still a bug about inner functions, that try to create themselves in type check mode, even when called with non symbolic input
 # assert cut_elim(str, int, str, len, lambda n: "is " + str(n) + " chars long")(
 #     "some string") == 2, "this might seem crazy... but these are perfectly valid python functions"
@@ -429,6 +432,7 @@ def ident2(A: Prop) -> FUNC(_, A, A):
 
     return inner
 
+
 # This would be a cool feature. Doesn't work right now
 
 # A = VAR("A")
@@ -450,7 +454,7 @@ def ident2(A: Prop) -> FUNC(_, A, A):
 
 
 
-
+################################################
 
 # TODO: now obvously we want and_def as an implicit assumption, defined in a library somewhere
 # for all A,B.  A and B is a prop which means that any output created by any function that takes in A and B is achivable
@@ -473,85 +477,84 @@ B = VAR("B")
 # print("hi")
 # print(type(and_def)==function)
 
-# @dependent
-# def and_left_elim(A: Prop, B: Prop,
-#                   AandB: and_def(A, B)) -> A:  # TODO: need to handle the super akward case where, dependent vars are computed on (could lead to unsoundness)
-#     @dependent
-#     def take_A_ignore_B(a: A, b: B) -> A:
-#         return a
-#
-#     return AandB(A, take_A_ignore_B)
+@dependent
+def and_left_elim(A: Prop, B: Prop,
+                  AandB: and_def(A, B)) -> A:
+    # TODO: need to handle the super akward case where, dependent vars are computed on (could lead to unsoundness)(?)
+    @dependent
+    def take_A_ignore_B(a: A, b: B) -> A:
+        return a
 
-#
-# A = DependentVar()
-# B = DependentVar()
-#
-#
-# def and_intro(A: Prop, B: Prop, a: A, b: B) -> and_def(A, B):
-#     Output = DependentVar()
-#
-#     def any_output_any_func(Output: Prop, AnyFunc: FUNC(_, A, FUNC(_, B, Output))) -> Output:
-#         return AnyFunc(a, b)
-#
-#     return any_output_any_func
-#
-#
-# # type level equality
-# def eq_def(A: Prop, B: Prop) -> Prop:
-#     P = DependentVar()
-#     x = DependentVar()
-#     return FUNC(P, FUNC(_, Prop, FUNC(_, Prop, Prop)),  # any porperty
-#                 FUNC(_, FUNC(x, Prop, P(x, x)),  # (evidence) that respects equivelence
-#                      P(A, B)  # will have the pair A B
-#                      ))
-#
-#
-# A = DependentVar()
-#
-#
-# # for all types A.  A=A
-# # note that this also denotes the inhabiteant refl
-# def proof_eq_reflexive(
-#         A: Prop,
-# ) -> eq_def(A, A):
-#     P = DependentVar()
-#     x = DependentVar()
-#
-#     def inner(P: FUNC(_, Prop, FUNC(_, Prop, Prop)),
-#               pxx: FUNC(x, Prop, P(x, x))  # TODO: rename pcc
-#               ) -> P(A, A):
-#         return pxx(A)
-#
-#     return inner
-#
-#
-# def swap_args(P: FUNC(_, Prop, FUNC(_, Prop, Prop))) -> FUNC(_, Prop, FUNC(_, Prop, Prop)):
-#     def inner(A: Prop, B: Prop) -> Prop:
-#         return P(B, A)
-#
-#     return inner
-#
-#
-# A = DependentVar()
-# B = DependentVar()
-#
-#
-# # for all types A.  A=A
-# # note that this also denotes the inhabiteant refl
-# def proof_eq_sym(
-#         A: Prop, B: Prop,
-#         AandB: eq_def(A, B)
-# ) -> eq_def(B, A):
-#     P = DependentVar()
-#     x = DependentVar()
-#
-#     def inner(P: FUNC(_, Prop, FUNC(_, Prop, Prop)),
-#               pxx: FUNC(x, Prop, P(x, x))  # TODO: rename pcc
-#               ) -> P(B, A):
-#         return AandB(swap_args(P), pxx)
-#
-#     return inner
-#
-# #TODO: eq transitive
-#
-#
+    return AandB(A, take_A_ignore_B)
+
+
+A = VAR("A")
+B = VAR("B")
+
+
+def and_intro(A: Prop, B: Prop, a: A, b: B) -> and_def(A, B):
+    Output = VAR("Output")
+
+    def any_output_any_func(Output: Prop, AnyFunc: FUNC(_, A, FUNC(_, B, Output))) -> Output:
+        return AnyFunc(a, b)
+
+    return any_output_any_func
+
+
+# type level equality
+def eq_def(A: Prop, B: Prop) -> Prop:
+    P = VAR("P")
+    x = VAR("x")
+    return FUNC(P, FUNC(_, Prop, FUNC(_, Prop, Prop)),  # any porperty
+                FUNC(_, FUNC(x, Prop, P(x, x)),  # (evidence) that respects equivelence
+                     P(A, B)  # will have the pair A B
+                     ))
+
+
+A = VAR("A")
+
+
+# for all types A.  A=A
+# note that this also denotes the inhabiteant refl
+def proof_eq_reflexive(
+        A: Prop,
+) -> eq_def(A, A):
+    P = VAR("P")
+    x = VAR("x")
+
+    def inner(P: FUNC(_, Prop, FUNC(_, Prop, Prop)),
+              pxx: FUNC(x, Prop, P(x, x))  # TODO: rename pcc
+              ) -> P(A, A):
+        return pxx(A)
+
+    return inner
+
+
+def swap_args(P: FUNC(_, Prop, FUNC(_, Prop, Prop))) -> FUNC(_, Prop, FUNC(_, Prop, Prop)):
+    def inner(A: Prop, B: Prop) -> Prop:
+        return P(B, A)
+
+    return inner
+
+
+A = VAR("A")
+B = VAR("B")
+
+
+# for all types A.  A=A
+# note that this also denotes the inhabiteant refl
+def proof_eq_sym(
+        A: Prop, B: Prop,
+        AandB: eq_def(A, B)
+) -> eq_def(B, A):
+    P = VAR("P")
+    x = VAR("x")
+
+    def inner(P: FUNC(_, Prop, FUNC(_, Prop, Prop)),
+              pxx: FUNC(x, Prop, P(x, x))  # TODO: rename pcc
+              ) -> P(B, A):
+        return AandB(swap_args(P), pxx)
+
+    return inner
+
+# TODO: eq transitive
