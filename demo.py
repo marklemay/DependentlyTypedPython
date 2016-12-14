@@ -260,7 +260,8 @@ def ident2(A: Prop) -> FUNC(_, A, A):
 
 ################################################
 
-# TODO: now obvously we want and_def as an implicit assumption, defined in a library somewhere
+# now obvously we want and_def as an implicit assumption, defined in a library somewhere
+
 # for all A,B.  A and B is a prop which means that any output created by any function that takes in A and B is achivable
 # note that this funciton chould have been defined in any scope
 @dependent
@@ -284,7 +285,6 @@ B = VAR("B")
 @dependent
 def and_left_elim(A: Prop, B: Prop,
                   AandB: and_def(A, B)) -> A:
-    # TODO: need to handle the super akward case where, dependent vars are computed on (could lead to unsoundness)(?)
     @dependent
     def take_A_ignore_B(a: A, b: B) -> A:
         return a
@@ -350,7 +350,7 @@ def proof_eq_reflexive(
     x = VAR("x")
 
     def inner(P: FUNC(_, Prop, FUNC(_, Prop, Prop)),
-              pxx: FUNC(x, Prop, P(x, x))  # TODO: rename pcc
+              pxx: FUNC(x, Prop, P(x, x))
               ) -> P(A, A):
         return pxx(A)
 
@@ -378,7 +378,7 @@ def proof_eq_sym(
     x = VAR("x")
 
     def inner(P: FUNC(_, Prop, FUNC(_, Prop, Prop)),
-              pxx: FUNC(x, Prop, P(x, x))  # TODO: rename pcc
+              pxx: FUNC(x, Prop, P(x, x))
               ) -> P(B, A):
         return AandB(swap_args(P), pxx)
 
