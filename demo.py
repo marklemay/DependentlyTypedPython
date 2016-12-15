@@ -33,12 +33,12 @@ def ident(A: Prop, a: A) -> A:
 
 assert ident(str, "hi") == "hi", "the function runs as you would expect"
 assert type(ident(str, "hi")) == str, "when the first parameter is a string the function returns a string"
-assert type(ident(int, 7)) == int, "when the first parameter is a string the function returns a string"
+assert type(ident(int, 7)) == int, "when the first parameter is a int the function returns a int"
 
 assert type(ident("not a type", 7)) == int, "for now I'm begrudgingly accepting the python convention of erasing type constraints at runtime"
 
-# but this is not merely a function but correspend to a rich theory of mathematical logic,
-# ident represents a proof that for all A, A implies A.
+# but the Calaculus of Constructions is not merely about defining functions but correspend to a rich theory of mathematical logic,
+# ident represents a proof that For all A, A implies A.
 
 # so a type checker should actually check your types, you can prove this is happening by uncommenting the code below and running the file
 
