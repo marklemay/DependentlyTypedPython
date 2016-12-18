@@ -42,10 +42,12 @@ assert type(ident(int, 7)) == int, "when the first parameter is a int the functi
 assert type(ident("not a type", 7)) == int, ("for now I'm begrudgingly accepting the python convention of erasing type "
                                              "constraints at runtime")
 
-# but the Calaculus of Constructions is not merely about defining functions but correspend to a rich theory of mathematical logic,
-# ident represents a proof that For all A, A implies A.
+# but the Calculus of Constructions is not merely about defining functions but corresponds to a rich theory of
+# mathematical logic,
+# ident represents a proof that "For all A, A implies A".
 
-# so a type checker should actually check your types, you can prove this is happening by uncommenting the code below and running the file
+# A type checker should actually check your types,
+# you can prove this is happening by uncommenting the code below and running the file
 
 # A = VAR("A")
 #
@@ -56,11 +58,12 @@ assert type(ident("not a type", 7)) == int, ("for now I'm begrudgingly accepting
 
 # now sometimes we want to use functions as inputs, but python limits us
 # we cannot use the syntax ":" and "->" as freely as we would like
-# We need to construct our function tyes with FUNC, FUNC takes 3 arguments, the name of the first input, the type of the fist input and the type of the output
+# We need to construct our function types with FUNC,
+# FUNC takes 3 arguments, the name of the first input, the type of the fist input and the type of the output
 
-# the tyesignature of the ident function is
+# the type signature of the ident function is
 # FUNC(A, Prop, FUNC( a, A,  A))
-# note that the function signature makes the ependency clear
+# note that the function signature makes the dependency on A clear
 
 # we can make more complicated functions/proofs
 
@@ -75,9 +78,9 @@ def impl(A: Prop, B: Prop, a: A, a_to_b: FUNC(a, A, B)) -> B:
 
 
 assert impl(str, int, "hi", len) == 2, "this might seem crazy... but these are perfectly valid python functions"
-# and again this serves as a proof of For all A, For all B, (A and (A implies B)) implies B
+# and again this serves as a proof of "For all A, For all B, (A and (A implies B)) implies B"
 
-# I will use th common convetion of using _ in place of variables that don't need nmaes
+# I will use th common convection of using _ in place of variables that don't need names
 _ = VAR("_")
 
 
@@ -87,10 +90,11 @@ def impl(A: Prop, B: Prop, a: A, a_to_b: FUNC(_, A, B)) -> B:
     return a_to_b(a)
 
 
-# since the B did not depend on the specific A
+# since the B did not depend on the specific a in FUNC(a, A, B)
 
 
-# we can write even more complicated functions/proofs with inner functions that assume additional things
+# we can write even more complicated functions/proofs with inner functions
+# that allows us to "assume things"
 A = VAR("A")
 B = VAR("B")
 C = VAR("C")
@@ -124,30 +128,30 @@ def cut_elim(A: Prop, B: Prop, C: Prop, a_to_b: FUNC(_, A, B), b_to_c: FUNC(_, B
 #     return inner
 
 
-
-# implication is fine but we can define other logical primatives in a funtional way
+# implication is fine but we can define other logical primitives in a functional way
 # take AND for instance
 # how can AND be defined with just functions?
 
 # ...
 
-# we want to say thst for if we have A AND B we can run any function that takes A and B.
+# we want to say that for if we have "A AND B" we can run any output from any function that takes A and B.
 # more formally:
-# note that this funciton chould have been defined in any scope, and it returns a type signature (which itself has type Prop)
 @dependent
 def and_def(A: Prop, B: Prop) -> Prop:
     Output = VAR("Output")
     AnyFunc = VAR("AnyFunc")
 
     return FUNC(Output, Prop,
-                FUNC(AnyFunc, FUNC(_, A, FUNC(_, B, Output)),  # the function takes A and B
+                FUNC(AnyFunc, FUNC(_, A, FUNC(_, B, Output)),  # the function AnyFunc takes an A and a B
                      Output))
 
+# note that this function could have been defined in any scope, and it returns a type signature (
+# which itself has type Prop)
 
-# (obvously this should be defined in a library somewhere)
+# (obviously this should be defined in a library somewhere)
 
 
-# we can define some of the essental properties of this definition
+# we can define some of the essential properties of AND definition
 # like A AND B implies A
 A = VAR("A")
 B = VAR("B")
@@ -193,7 +197,7 @@ A = VAR("A")
 
 
 # for all types A.  A=A
-# note that this also denotes the inhabiteant refl
+# note that this also denotes the inhabitant refl
 def proof_eq_reflexive(
         A: Prop,
 ) -> eq_def(A, A):
@@ -220,7 +224,6 @@ B = VAR("B")
 
 
 # for all types A.  A=A
-# note that this also denotes the inhabiteant refl
 def proof_eq_sym(
         A: Prop, B: Prop,
         AandB: eq_def(A, B)
