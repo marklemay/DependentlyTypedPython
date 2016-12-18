@@ -1,25 +1,29 @@
 from main import *
 
 
-# this library embedds a dependent type system into standard python (3.5)
-# technically these types should be eqivelent to the Calaculus of Constructions, a foundational mathmeticall thereory
+# this library embeds a dependent type system into standard python (3.5)
+# dependent types can be used to structure programs and as a foundational mathematical theory
+# technically these types should be equivalent to the Calculus of Constructions,
+# http://www.sciencedirect.com/science/article/pii/0890540188900053
 
 
-# The calculus of constructions contains one constant "Prop" wich represents the collection of all types,
+# The calculus of constructions contains one constant "Prop" which represents the collection of all types,
 # we can use it in python's type hints to like this:
 def ident(A: Prop) -> Prop:
     return A
 
 
-# but python will not typecheck this function automatically to typecheck the funciton when it is declaired we need to use the @dependent annotation
+# but python will not typecheck this function automatically. To typecheck the function when it is declared we need to
+# use the @dependent annotation
 @dependent
 def ident(A: Prop) -> Prop:
     return A
 
 
-assert ident(int) == int, "all functions declaired with @dependent should work just fine as a python functions"
+assert ident(int) == int, "all functions declared with @dependent should work just fine as a python functions"
 
-# In order to make use of dependent types we need to syntactically register the before hand, so ptyhon can parse the file syntactically, we do this with VAR
+# In order to make use of dependent types in syntactically valid python we need to register them before hand
+# we do this with VAR
 A = VAR("A")
 
 
@@ -29,13 +33,14 @@ def ident(A: Prop, a: A) -> A:
     return a
 
 
-# it is dependent becuase the output relies on the input of the first parameter
+# it is dependent because the output relies on the input of the first parameter
 
 assert ident(str, "hi") == "hi", "the function runs as you would expect"
 assert type(ident(str, "hi")) == str, "when the first parameter is a string the function returns a string"
 assert type(ident(int, 7)) == int, "when the first parameter is a int the function returns a int"
 
-assert type(ident("not a type", 7)) == int, "for now I'm begrudgingly accepting the python convention of erasing type constraints at runtime"
+assert type(ident("not a type", 7)) == int, ("for now I'm begrudgingly accepting the python convention of erasing type "
+                                             "constraints at runtime")
 
 # but the Calaculus of Constructions is not merely about defining functions but correspend to a rich theory of mathematical logic,
 # ident represents a proof that For all A, A implies A.
