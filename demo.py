@@ -172,7 +172,7 @@ def and_left_elim(A: Prop, B: Prop,
 # A is given as the type of output
 
 
-# A implies (B implies A and B)
+# A implies (B implies A AND B)
 A = VAR("A")
 B = VAR("B")
 
@@ -226,7 +226,7 @@ A = VAR("A")
 B = VAR("B")
 
 
-# for all types A.  A=A
+# for all types A, B.  A=B implies B=A
 def proof_eq_sym(
         A: Prop, B: Prop,
         AandB: eq_def(A, B)
