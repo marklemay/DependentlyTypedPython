@@ -42,7 +42,7 @@ assert type(ident(int, 7)) == int, "when the first parameter is a int the functi
 assert type(ident("not a type", 7)) == int, ("for now I'm begrudgingly accepting the python convention of erasing type "
                                              "constraints at runtime")
 
-# but the Calculus of Constructions is not merely about defining functions but corresponds to a rich theory of
+# the Calculus of Constructions is not merely about defining functions but corresponds to a rich theory of
 # mathematical logic,
 # ident represents a proof that "For all A, A implies A".
 
@@ -55,6 +55,9 @@ assert type(ident("not a type", 7)) == int, ("for now I'm begrudgingly accepting
 # @dependent
 # def ident_bad(a: A) -> A:
 #     return a
+
+# it doesn't typecheck because A is not defined on the scope of the function
+
 
 # now sometimes we want to use functions as inputs, but python limits us
 # we cannot use the syntax ":" and "->" as freely as we would like
@@ -134,7 +137,7 @@ def cut_elim(A: Prop, B: Prop, C: Prop, a_to_b: FUNC(_, A, B), b_to_c: FUNC(_, B
 
 # ...
 
-# we want to say that for if we have "A AND B" we can run any output from any function that takes A and B.
+# we want to say that if we have "A AND B" we can get any output from any function that takes A and B.
 # more formally:
 @dependent
 def and_def(A: Prop, B: Prop) -> Prop:
@@ -152,7 +155,7 @@ def and_def(A: Prop, B: Prop) -> Prop:
 
 
 # we can define some of the essential properties of AND definition
-# like A AND B implies A
+# like "A AND B implies A"
 A = VAR("A")
 B = VAR("B")
 
@@ -165,7 +168,7 @@ def and_left_elim(A: Prop, B: Prop,
         return a
 
     return AandB(A, take_A_ignore_B)
-# take a some time to understand this, the trick is really cool
+# take some time to understand this, the trick is really cool
 # A is given as the type of output
 
 
