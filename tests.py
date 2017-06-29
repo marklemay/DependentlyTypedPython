@@ -101,7 +101,7 @@ a = VAR("a")
 
 
 @dependent
-def impl(A: Prop, B: Prop, a: A, a_to_b: FUNC(a, A, B)) -> B:
+def impl(A: Prop, B: Prop, a: A, a_to_b: Σ(a, A, B)) -> B:
     return a_to_b(a)
 
 
@@ -114,7 +114,7 @@ C = VAR("C")
 
 
 @dependent
-def cut_elim(A: Prop, B: Prop, C: Prop, a_to_b: FUNC(_, A, B), b_to_c: FUNC(_, B, C)) -> FUNC(_, A, C):
+def cut_elim(A: Prop, B: Prop, C: Prop, a_to_b: Σ(_, A, B), b_to_c: Σ(_, B, C)) -> Σ(_, A, C):
     @dependent
     def inner(a: A) -> C:
         return b_to_c(
@@ -131,7 +131,7 @@ try:
 
 
     @dependent
-    def func2bad(A: Prop, B: Prop, C: Prop, a_to_b: FUNC(_, A, B), b_to_c: FUNC(_, B, C)) -> FUNC(_, A, C):
+    def func2bad(A: Prop, B: Prop, C: Prop, a_to_b: Σ(_, A, B), b_to_c: Σ(_, B, C)) -> Σ(_, A, C):
         @dependent
         def inner(a: A) -> C:
             return b_to_c(a)
@@ -148,7 +148,7 @@ A = VAR("A")
 
 
 @dependent
-def ident2(A: Prop) -> FUNC(_, A, A):
+def ident2(A: Prop) -> Σ(_, A, A):
     @dependent
     def inner(a: A) -> A:
         return a
@@ -166,8 +166,8 @@ def and_def(A: Prop, B: Prop) -> Prop:
     Output = VAR("Output")
     AnyFunc = VAR("AnyFunc")
 
-    return FUNC(Output, Prop,
-                FUNC(AnyFunc, FUNC(_, A, FUNC(_, B, Output)),
+    return Σ(Output, Prop,
+                Σ(AnyFunc, Σ(_, A, Σ(_, B, Output)),
                      Output))
 
 
@@ -197,7 +197,7 @@ B = VAR("B")
 def and_intro(A: Prop, B: Prop, a: A, b: B) -> and_def(A, B):
     Output = VAR("Output")
 
-    def any_output_any_func(Output: Prop, AnyFunc: FUNC(_, A, FUNC(_, B, Output))) -> Output:
+    def any_output_any_func(Output: Prop, AnyFunc: Σ(_, A, Σ(_, B, Output))) -> Output:
         return AnyFunc(a, b)
 
     return any_output_any_func
@@ -207,8 +207,8 @@ def and_intro(A: Prop, B: Prop, a: A, b: B) -> and_def(A, B):
 def eq_def(A: Prop, B: Prop) -> Prop:
     P = VAR("P")
     x = VAR("x")
-    return FUNC(P, FUNC(_, Prop, FUNC(_, Prop, Prop)),  # any porperty
-                FUNC(_, FUNC(x, Prop, P(x, x)),  # (evidence) that respects equivelence
+    return Σ(P, Σ(_, Prop, Σ(_, Prop, Prop)),  # any porperty
+                Σ(_, Σ(x, Prop, P(x, x)),  # (evidence) that respects equivelence
                      P(A, B)  # will have the pair A B
                      ))
 
@@ -224,15 +224,15 @@ def proof_eq_reflexive(
     P = VAR("P")
     x = VAR("x")
 
-    def inner(P: FUNC(_, Prop, FUNC(_, Prop, Prop)),
-              pxx: FUNC(x, Prop, P(x, x))  # TODO: rename pcc
+    def inner(P: Σ(_, Prop, Σ(_, Prop, Prop)),
+              pxx: Σ(x, Prop, P(x, x))  # TODO: rename pcc
               ) -> P(A, A):
         return pxx(A)
 
     return inner
 
 
-def swap_args(P: FUNC(_, Prop, FUNC(_, Prop, Prop))) -> FUNC(_, Prop, FUNC(_, Prop, Prop)):
+def swap_args(P: Σ(_, Prop, Σ(_, Prop, Prop))) -> Σ(_, Prop, Σ(_, Prop, Prop)):
     def inner(A: Prop, B: Prop) -> Prop:
         return P(B, A)
 
@@ -252,8 +252,8 @@ def proof_eq_sym(
     P = VAR("P")
     x = VAR("x")
 
-    def inner(P: FUNC(_, Prop, FUNC(_, Prop, Prop)),
-              pxx: FUNC(x, Prop, P(x, x))  # TODO: rename pcc
+    def inner(P: Σ(_, Prop, Σ(_, Prop, Prop)),
+              pxx: Σ(x, Prop, P(x, x))  # TODO: rename pcc
               ) -> P(B, A):
         return AandB(swap_args(P), pxx)
 

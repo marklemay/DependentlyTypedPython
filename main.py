@@ -19,7 +19,7 @@ def dependent(func):
                 #     context[head] = annotations[head].name
                 # else:
                 #     context[head] = annotations[head]
-                return FUNC(head, annotations[head], rec(context, tail, out))
+                return Σ(head, annotations[head], rec(context, tail, out))
             else:
                 return out
 
@@ -36,7 +36,7 @@ def dependent(func):
 
 
         def type_sig_symbolize(name_to_symbol, symbol_to_type, types):
-            # TODO: should always return symbol or Prop or FUNC
+            # TODO: should always return symbol or Prop or Σ
 
 
             # TODO: needs a way to handle when this is an inner func in typecheck mode ve. when this is an innfer func with the intent to call.
@@ -45,7 +45,7 @@ def dependent(func):
                 return Prop
             elif isinstance(types, Symbolic):
                 return types  # there is a symbolic type in scope
-            elif type(types) == FUNC:
+            elif type(types) == Σ:
                 input_type = type_sig_symbolize(name_to_symbol, symbol_to_type, types.in_ty)
 
                 input_symbol = Symbolic(types.in_name, input_type)
@@ -64,7 +64,7 @@ def dependent(func):
 
                 output_type = type_sig_symbolize(new_name_to_symbol, new_symbol_to_type, types.out_ty)
 
-                return FUNC(input_symbol, input_type, output_type)
+                return Σ(input_symbol, input_type, output_type)
             elif isinstance(types, DependentVar) and types.name in name_to_symbol:  # TODO: should be more worried about var capture
                 return name_to_symbol[types.name]
             else:
@@ -79,8 +79,8 @@ def dependent(func):
                 # assert isinstance(ty_sym, Symbolic)
                 # ty = ty_sym.ty
 
-                assert type(ty) == FUNC
-                assert isinstance(ty.in_name, Symbolic), "my abuse of the FUNC class has come back at me"
+                assert type(ty) == Σ
+                assert isinstance(ty.in_name, Symbolic), "my abuse of the Σ class has come back at me"
                 return [ty.in_name] + rec(ty.out_ty, n - 1)
             else:
                 return [ty]
@@ -97,7 +97,7 @@ def dependent(func):
 
         # TODO: it's a little akward becuase we want to maintain the runnability of these functions
         # TODO: we will need to be able to acount for aplications on type argumentes
-        if ty_ret is Prop and isinstance(sym_return, FUNC):
+        if ty_ret is Prop and isinstance(sym_return, Σ):
             return True  # TODO: TODO TODO this is a horrifying simplification!  it is horribly unsound!!!!!
         elif type(sym_return) == Symbolic:
             assert sym_return.ty == ty_ret, "retrurned symbolic type" + str(sym_return.ty) + " != " + str(ty_ret)
@@ -130,13 +130,13 @@ class Symbolic:  # represents the connonical most general version of a given typ
     # TODO: will symbolicy  simulate everythingreasonable
     def __call__(self, *args, **kwargs):
         assert not kwargs, "kwargs not suported"
-        assert type(self.ty) == FUNC, "application to non-function: " + str(self.ty)
+        assert type(self.ty) == Σ, "application to non-function: " + str(self.ty)
 
         # TODO: need to handle replacement
 
         def recurs(ty, args):
             if args:
-                assert type(ty) == FUNC, "application to non-function"  # TODO: slightly deviating from the python syntax
+                assert type(ty) == Σ, "application to non-function"  # TODO: slightly deviating from the python syntax
 
                 head, *tail = args
                 if type(head) == Symbolic:  # , "application of non_symbolic"
@@ -173,17 +173,17 @@ def type_with_replacement(replace_this, with_this, in_this):
         return Prop
     elif in_this == replace_this:
         return with_this
-    elif isinstance(in_this, FUNC):
+    elif isinstance(in_this, Σ):
         new_in_ty = type_with_replacement(replace_this, with_this, in_this.in_ty)
         new_out_ty = type_with_replacement(replace_this, with_this, in_this.out_ty)
 
-        return FUNC(in_this.in_name, new_in_ty, new_out_ty)
+        return Σ(in_this.in_name, new_in_ty, new_out_ty)
 
     elif isinstance(in_this, Symbolic):
         # create a new symbolic object under the typing restrictions
         old_ty = in_this.ty
 
-        if isinstance(old_ty, FUNC):  # TODO: too messy
+        if isinstance(old_ty, Σ):  # TODO: too messy
             new_ty = type_with_replacement(replace_this, with_this, old_ty)
             return Symbolic(in_this.name, new_ty)
         else:
@@ -194,7 +194,7 @@ def type_with_replacement(replace_this, with_this, in_this):
 
 # dependent func
 # TODO: better as an enum?
-class FUNC:
+class Σ:
     def __init__(self, in_name, in_ty, out_ty):
         self.in_name = in_name
         self.in_ty = in_ty
@@ -215,12 +215,12 @@ class FUNC:
 
 # TODO: not beta, gamma?
 def beta_eq(this, other, replacement_context):
-    if type(this) != FUNC and type(other) != FUNC:
+    if type(this) != Σ and type(other) != Σ:
         if other in replacement_context:
             return this == replacement_context[other]
         else:
             return this == other
-    elif type(this) == FUNC and type(other) == FUNC:
+    elif type(this) == Σ and type(other) == Σ:
         if beta_eq(this.in_ty, this.in_ty, replacement_context):
 
             new_replacement_context = copy.copy(replacement_context)

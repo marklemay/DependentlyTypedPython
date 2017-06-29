@@ -61,11 +61,11 @@ assert type(ident("not a type", 7)) == int, ("for now I'm begrudgingly accepting
 
 # now sometimes we want to use functions as inputs, but python limits us
 # we cannot use the syntax ":" and "->" as freely as we would like
-# We need to construct our function types with FUNC,
-# FUNC takes 3 arguments, the name of the first input, the type of the fist input and the type of the output
+# We need to construct our function types with Σ,
+# Σ takes 3 arguments, the name of the first input, the type of the fist input and the type of the output
 
 # the type signature of the ident function is
-# FUNC(A, Prop, FUNC( a, A,  A))
+# Σ(A, Prop, Σ( a, A,  A))
 # note that the function signature makes the dependency on A clear
 
 # we can make more complicated functions/proofs
@@ -76,7 +76,7 @@ a = VAR("a")
 
 
 @dependent
-def impl(A: Prop, B: Prop, a: A, a_to_b: FUNC(a, A, B)) -> B:
+def impl(A: Prop, B: Prop, a: A, a_to_b: Σ(a, A, B)) -> B:
     return a_to_b(a)
 
 
@@ -89,11 +89,11 @@ _ = VAR("_")
 
 # with this in mind the above function could be written as
 @dependent
-def impl(A: Prop, B: Prop, a: A, a_to_b: FUNC(_, A, B)) -> B:
+def impl(A: Prop, B: Prop, a: A, a_to_b: Σ(_, A, B)) -> B:
     return a_to_b(a)
 
 
-# since the B did not depend on the specific a in FUNC(a, A, B)
+# since the B did not depend on the specific a in Σ(a, A, B)
 
 
 # we can write even more complicated functions/proofs with inner functions
@@ -104,7 +104,7 @@ C = VAR("C")
 
 
 @dependent
-def cut_elim(A: Prop, B: Prop, C: Prop, a_to_b: FUNC(_, A, B), b_to_c: FUNC(_, B, C)) -> FUNC(_, A, C):
+def cut_elim(A: Prop, B: Prop, C: Prop, a_to_b: Σ(_, A, B), b_to_c: Σ(_, B, C)) -> Σ(_, A, C):
     @dependent
     def inner(a: A) -> C:
         return b_to_c(
@@ -123,7 +123,7 @@ def cut_elim(A: Prop, B: Prop, C: Prop, a_to_b: FUNC(_, A, B), b_to_c: FUNC(_, B
 #
 #
 # @dependent
-# def func2bad(A: Prop, B: Prop, C: Prop, a_to_b: FUNC(_, A, B), b_to_c: FUNC(_, B, C)) -> FUNC(_, A, C):
+# def func2bad(A: Prop, B: Prop, C: Prop, a_to_b: Σ(_, A, B), b_to_c: Σ(_, B, C)) -> Σ(_, A, C):
 #     @dependent
 #     def inner(a: A) -> C:
 #         return b_to_c(a)
@@ -144,8 +144,8 @@ def and_def(A: Prop, B: Prop) -> Prop:
     Output = VAR("Output")
     AnyFunc = VAR("AnyFunc")
 
-    return FUNC(Output, Prop,
-                FUNC(AnyFunc, FUNC(_, A, FUNC(_, B, Output)),  # the function AnyFunc takes an A and a B
+    return Σ(Output, Prop,
+                Σ(AnyFunc, Σ(_, A, Σ(_, B, Output)),  # the function AnyFunc takes an A and a B
                      Output))
 
 # note that this function could have been defined in any scope, and it returns a type signature (
@@ -180,7 +180,7 @@ B = VAR("B")
 def and_intro(A: Prop, B: Prop, a: A, b: B) -> and_def(A, B):
     Output = VAR("Output")
 
-    def any_output_any_func(Output: Prop, AnyFunc: FUNC(_, A, FUNC(_, B, Output))) -> Output:
+    def any_output_any_func(Output: Prop, AnyFunc: Σ(_, A, Σ(_, B, Output))) -> Output:
         return AnyFunc(a, b)
 
     return any_output_any_func
@@ -190,8 +190,8 @@ def and_intro(A: Prop, B: Prop, a: A, b: B) -> and_def(A, B):
 def eq_def(A: Prop, B: Prop) -> Prop:
     P = VAR("P")
     x = VAR("x")
-    return FUNC(P, FUNC(_, Prop, FUNC(_, Prop, Prop)),  # any porperty
-                FUNC(_, FUNC(x, Prop, P(x, x)),  # (evidence) that respects equivalence
+    return Σ(P, Σ(_, Prop, Σ(_, Prop, Prop)),  # any porperty
+                Σ(_, Σ(x, Prop, P(x, x)),  # (evidence) that respects equivalence
                      P(A, B)  # will have the pair A B
                      ))
 
@@ -207,15 +207,15 @@ def proof_eq_reflexive(
     P = VAR("P")
     x = VAR("x")
 
-    def inner(P: FUNC(_, Prop, FUNC(_, Prop, Prop)),
-              pxx: FUNC(x, Prop, P(x, x))
+    def inner(P: Σ(_, Prop, Σ(_, Prop, Prop)),
+              pxx: Σ(x, Prop, P(x, x))
               ) -> P(A, A):
         return pxx(A)
 
     return inner
 
 
-def swap_args(P: FUNC(_, Prop, FUNC(_, Prop, Prop))) -> FUNC(_, Prop, FUNC(_, Prop, Prop)):
+def swap_args(P: Σ(_, Prop, Σ(_, Prop, Prop))) -> Σ(_, Prop, Σ(_, Prop, Prop)):
     def inner(A: Prop, B: Prop) -> Prop:
         return P(B, A)
 
@@ -234,8 +234,8 @@ def proof_eq_sym(
     P = VAR("P")
     x = VAR("x")
 
-    def inner(P: FUNC(_, Prop, FUNC(_, Prop, Prop)),
-              pxx: FUNC(x, Prop, P(x, x))
+    def inner(P: Σ(_, Prop, Σ(_, Prop, Prop)),
+              pxx: Σ(x, Prop, P(x, x))
               ) -> P(B, A):
         return AandB(swap_args(P), pxx)
 

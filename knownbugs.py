@@ -8,7 +8,7 @@ a = VAR("a")
 
 # equivalence under renaming
 @dependent
-def ident() -> FUNC(A, Prop, FUNC(a, A, A)):
+def ident() -> Σ(A, Prop, Σ(a, A, A)):
     B = VAR("B")
 
     @dependent
@@ -25,8 +25,8 @@ def and_def(A: Prop, B: Prop) -> Prop:
     AnyFunc = VAR("AnyFunc")
     C = VAR("C")
 
-    return FUNC(C, Prop,
-                FUNC(AnyFunc, FUNC(_, A, FUNC(_, B, Output)),
+    return Σ(C, Prop,
+                Σ(AnyFunc, Σ(_, A, Σ(_, B, Output)),
                      Output))
 
 
@@ -47,7 +47,7 @@ C = VAR("C")
 
 
 @dependent
-def cut_elim(A: Prop, B: Prop, C: Prop, a_to_b: FUNC(_, A, B), b_to_c: FUNC(_, B, C)) -> FUNC(_, A, C):
+def cut_elim(A: Prop, B: Prop, C: Prop, a_to_b: Σ(_, A, B), b_to_c: Σ(_, B, C)) -> Σ(_, A, C):
     @dependent
     def inner(a: A) -> C:
         return b_to_c(
@@ -64,7 +64,7 @@ assert cut_elim(str, int, str, len, lambda n: "is " + str(n) + " chars long")(
 
 # it might be nice to assume anthing that in scope should be type checked
 @dependent
-def cut_elim(A: Prop, B: Prop, C: Prop, a_to_b: FUNC(_, A, B), b_to_c: FUNC(_, B, C)) -> FUNC(_, A, C):
+def cut_elim(A: Prop, B: Prop, C: Prop, a_to_b: Σ(_, A, B), b_to_c: Σ(_, B, C)) -> Σ(_, A, C):
     def inner(a: A) -> C:
         return b_to_c(
             a_to_b(a)
@@ -79,7 +79,7 @@ A = VAR("A")
 
 
 @dependent
-def ident_self() -> FUNC(A, Prop, FUNC(_, A, A)):
+def ident_self() -> Σ(A, Prop, Σ(_, A, A)):
     return ident(ident.get_type(), ident)
 
 
@@ -89,7 +89,7 @@ A = VAR("A")
 
 
 @dependent
-def ident_self_partial() -> FUNC(_, FUNC(A, Prop, FUNC(_, A, A)), FUNC(A, Prop, FUNC(_, A, A))):
+def ident_self_partial() -> Σ(_, Σ(A, Prop, Σ(_, A, A)), Σ(A, Prop, Σ(_, A, A))):
     return ident(ident.get_type())
 
 
@@ -98,5 +98,5 @@ B = VAR("B")
 
 
 # make sure beta reduction is cool
-def ident_self_partial2() -> FUNC(_, FUNC(A, Prop, FUNC(_, A, A)), FUNC(B, Prop, FUNC(_, B, B))):
+def ident_self_partial2() -> Σ(_, Σ(A, Prop, Σ(_, A, A)), Σ(B, Prop, Σ(_, B, B))):
     return ident(ident.get_type())
