@@ -7,10 +7,10 @@ a = VAR("a")
 
 
 @dependent
-def impl(A: Prop, B: Prop, a: A, a_to_b: Σ[a: A, B]) -> B: # this abuses slice notation, but looks closer to the expected syntax
+def impl(A: Prop, B: Prop, a: A, a_to_b: Π[a: A, B]) -> B: # this abuses slice notation, but looks closer to the expected syntax
     return a_to_b(a)
 
 # could also override the bit shift operator
 @dependent
-def impl(A: Prop, B: Prop, a: A, a_to_b: Σ[a: A >> B]) -> B:
+def impl(A: Prop, B: Prop, a: A, a_to_b: Π[a: A >> B]) -> B:
     return a_to_b(a)
