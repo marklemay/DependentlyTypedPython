@@ -2,7 +2,7 @@ import inspect
 import copy
 
 
-# break up into seperate files
+# TODO: break up into separate files
 # TODO: break into calculus of constructions unification
 
 def dependent(func):
@@ -40,7 +40,7 @@ def dependent(func):
 
 
             # TODO: needs a way to handle when this is an inner func in typecheck mode ve. when this is an innfer func with the intent to call.
-            # probably the easiest is handle python types correctly, and ... run a partial symbolic exicution?
+            # probably the easiest is handle python types correctly, and ... run a partial symbolic execution?
             if types is Prop:
                 return Prop
             elif isinstance(types, Symbolic):
@@ -95,19 +95,19 @@ def dependent(func):
         # print("expected:", ty_ret)
         # print("got:", sym_return)
 
-        # TODO: it's a little akward becuase we want to maintain the runnability of these functions
-        # TODO: we will need to be able to acount for aplications on type argumentes
+        # TODO: it's a little awkward because we want to maintain the runnability of these functions
+        # TODO: we will need to be able to account for applications on type arguments
         if ty_ret is Prop and isinstance(sym_return, Π):
             return True  # TODO: TODO TODO this is a horrifying simplification!  it is horribly unsound!!!!!
         elif type(sym_return) == Symbolic:
-            assert sym_return.ty == ty_ret, "retrurned symbolic type" + str(sym_return.ty) + " != " + str(ty_ret)
+            assert sym_return.ty == ty_ret, "returned symbolic type" + str(sym_return.ty) + " != " + str(ty_ret)
             return sym_return.ty == ty_ret
         else:
             # TODO: this doesn't seem right...?
             # print(sym_return.get_type())
             # print(ty_ret)
 
-            assert sym_return.get_type() == ty_ret, "retrurned NOT symbolic type" + str(sym_return.get_type()) + " != " + str(ty_ret)
+            assert sym_return.get_type() == ty_ret, "returned NOT symbolic type" + str(sym_return.get_type()) + " != " + str(ty_ret)
 
             return sym_return.get_type() == ty_ret
 
@@ -121,13 +121,13 @@ def dependent(func):
 ####
 
 # a type ref
-class Symbolic:  # represents the connonical most general version of a given type
+class Symbolic:  # represents the canonical most general version of a given type
     # TODO: throw exceptions on equality checks, these are only equal if id are equal
     def __init__(self, name, ty):
         self.name = name
         self.ty = ty
 
-    # TODO: will symbolicy  simulate everythingreasonable
+    # TODO: will symbolically  simulate everything reasonable
     def __call__(self, *args, **kwargs):
         assert not kwargs, "kwargs not suported"
         assert type(self.ty) == Π, "application to non-function: " + str(self.ty)
@@ -153,8 +153,8 @@ class Symbolic:  # represents the connonical most general version of a given typ
 
                     assert False, "that didn't work!!!"
 
-                # return recurs(ty.out_ty, tail)  # TODO: need to make symbolic aplication change the return types!!!
-                return recurs(type_with_replacement(ty.in_name, head, ty.out_ty), tail)  # TODO: need to make symbolic aplication change the return types!!!
+                # return recurs(ty.out_ty, tail)  # TODO: need to make symbolic application change the return types!!!
+                return recurs(type_with_replacement(ty.in_name, head, ty.out_ty), tail)  # TODO: need to make symbolic application change the return types!!!
             else:
                 return Symbolic("__", ty)  # TODO: should return self?
 
@@ -210,7 +210,7 @@ class Π:
         return str(self)
 
     def __eq__(self, other):
-        return beta_eq(self, other, {})  # TODO: for sure this is wron becuase of beta redux
+        return beta_eq(self, other, {})  # TODO: for sure this is wrong because of beta redux
 
 
 # TODO: not beta, gamma?
@@ -233,7 +233,7 @@ def beta_eq(this, other, replacement_context):
         return False
 
 
-# not a good name for a general audiance
+# not a good name for a general audience
 class Prop:
     # TODO: need type clesses for this to work
     def __str__(self):
@@ -272,7 +272,7 @@ def VAR(name):
 _ = VAR("_")
 
 
-# TODO: we can abuse the notaiton way more, with slices to evoke the tyoing operator
+# TODO: we can abuse the notation way more, with slices to evoke the typing operator
 
 
 

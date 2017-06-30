@@ -18,7 +18,7 @@ def ident() -> Π(A, Prop, Π(a, A, A)):
     return inner_ident
 
 
-# right now Prop typechecks cheat, should fail because output is called before it is used
+# right now Prop typechecks cheats, should fail because output is called before it is used
 @dependent
 def and_def(A: Prop, B: Prop) -> Prop:
     Output = VAR("Output")
@@ -62,7 +62,7 @@ assert cut_elim(str, int, str, len, lambda n: "is " + str(n) + " chars long")(
     "some string") == 2, "this might seem crazy... but these are perfectly valid python functions"
 
 
-# it might be nice to assume anthing that in scope should be type checked
+# it might be nice to assume anything that in scope should be type checked
 @dependent
 def cut_elim(A: Prop, B: Prop, C: Prop, a_to_b: Π(_, A, B), b_to_c: Π(_, B, C)) -> Π(_, A, C):
     def inner(a: A) -> C:
