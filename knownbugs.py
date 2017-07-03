@@ -1,3 +1,6 @@
+# the biggest bug is that I didn't call this "ΠPython" that should be fixed first.
+
+
 from main import *
 from tests import *
 
